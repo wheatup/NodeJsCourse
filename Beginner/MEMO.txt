@@ -1,0 +1,39 @@
+/***** Npm相关 *****/
+
+// 创建package
+> npm init 
+
+// 观察者模式package
+> npm i -g codemon
+> codemon index.js
+
+// 创建package
+> npm init [--yes]
+
+// 查看package版本号
+> npm view xxx versions
+
+// 查看过期的package
+> npm outdated
+
+// 更新package
+> npm update
+
+// 登录Npm社区
+> npm login
+
+// 发布package
+> npm publish
+
+// 发布更新
+> npm version [major|minor|patch]
+
+
+/***** 系统变量设置 *****/
+
+Mac: 
+> export PORT=3000
+Windows:
+> set PORT=3000
+
+const port = process.env.PORT || 3000;
