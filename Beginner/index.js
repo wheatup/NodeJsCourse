@@ -1,9 +1,40 @@
+// 验证数据
 const Joi = require('joi');
+// 框架
 const express = require('express');
+// HTTP header
+const helmet = require('helmet');
+// 记录请求
+const morgan = require('morgan');
+// 配置文件
+const config = require('config');
+
+//const logger = require('./logger');
 const app = express();
 
-// 中间件
+// 获取环境变量的两种方式
+//console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
+//console.log(`app: ${app.get('env')}`);
+
+// 中间件(middleware)
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+app.use(helmet());
+
+
+// 应用配置
+console.log('Application name: ' + config.get('name'));
+console.log('Mail server: ' + config.get('mail.host'));
+console.log('Mail password: ' + config.get('mail.password'));
+
+if(app.get('env') === 'development'){
+   app.use(morgan('tiny'));
+   console.log('Morgan enabled.');
+}
+
+
+// app.use(logger);
 
 var courses = [
    {id: 1, name: 'Basic'},
