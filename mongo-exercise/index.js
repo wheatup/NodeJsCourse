@@ -24,9 +24,25 @@ async function getCourses(){
    return courses;
 };
 
+async function updateCourse(id){
+   const course = await Course.findById(id);
+   if(!course){
+      return 'can\'t find course!';
+   }
+   course.isPublished = true;
+   course.author = 'Someone else';
+
+   // course.set({
+   //    isPublished: true,
+   //    author: 'Someone else'
+   // });
+
+   const result = await course.save();
+};
+
 async function run(){
-   const courses = await getCourses();
-   console.log(courses);
+   const result = await updateCourse('5a68fdd7bee8ea64649c2777');
+   console.log(result);
 }
 
 run();

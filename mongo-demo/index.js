@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+/* jshint ignore:start */
 mongoose.connect('mongodb://localhost/playground')
    .then(()=>{
       console.log('Connected to MongoDB');
@@ -79,9 +80,51 @@ async function getCourses(){
    return courses;
 }
 
+async function updateCourse(id){
+   const course = await Course.findById(id);
+   if(!course){
+      return 'can\'t find course!';
+   }
+   course.isPublished = true;
+   course.author = 'Someone else';
+
+   // course.set({
+   //    isPublished: true,
+   //    author: 'Someone else'
+   // });
+
+   const result = await course.save();
+   return result;
+};
+
+async function updateCourseDirectly(id){
+   const result = await Course.update({_id: id}, {
+      $set: {
+         author: 'Mosh',
+         isPublished: false
+      }
+   });
+   // const course = await Course.findByIdAndUpdate(id, {
+   //    $set: {
+   //       author: 'Mosh',
+   //       isPublished: false
+   //    }
+   // }, {new: true});
+   return result;
+};
+
+async function removeCourse(id){
+   const result = await Course.deleteOne({_id: id});
+   return result;
+};
+
 async function run(){
-   const courses = await getCourses();
-   console.log(courses);
+   //const courses = await getCourses();
+   // const result = await updateCourseDirectly('5b39bffa233171384c519da9');
+   const result = await removeCourse('5b39bffa233171384c519da9');
+   console.log(result);
 }
 
 run();
+
+/* jshint ignore:end */
