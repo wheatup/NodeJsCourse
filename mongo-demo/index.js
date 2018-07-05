@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-/* jshint ignore:start */
+
+// 连接mongodb
 mongoose.connect('mongodb://localhost/playground')
    .then(()=>{
       console.log('Connected to MongoDB');
@@ -7,28 +8,80 @@ mongoose.connect('mongodb://localhost/playground')
       console.error('Can\'t connect to MongoDB', err);
    });
 
+// 创建schema
 const courseSchema = new mongoose.Schema({
-   name: String,
+   name: {
+      type: String,
+      required: true,
+      minlength: 4,
+      maxlength: 255
+//      match: /pattern/
+   },
+   category: {
+      type: String,
+      required: true,
+      enum: ['web', 'mobile', 'network']
+   },
    author: String,
-   tags: [String],
+   // tags: [String],
+   tags:{
+      type: Array,
+      validate: {
+         // 异步验证
+         isAsync: true,
+         validator: function(v, cb){
+            setTimeout(()=>{
+               // 异步调用
+               const result = v && v.length > 0;
+               cb(result);
+            }, 1000);
+         },
+
+         // // 同步验证
+         // validator: function(v){
+         //    return v && v.length > 0;
+         // },
+         message: 'A course should have at least one tag.'
+      }
+   },
    date: {type: Date, default: Date.now },
-   isPublished: Boolean
+   isPublished: Boolean,
+   price: {
+      type: Number,
+      required: function(){
+         return this.isPublished;
+      },
+      min: 0,
+      max: 65535
+   }
 });
 
+// 创建model
 const Course = mongoose.model('Course', courseSchema);
 
-async function createCourse(){
+// CREATE
+async function createCourse(name, author, category, tags, isPublished, price){
+   var result;
    const course = new Course({
-      name: 'Angular Course',
-      author: 'Mosh',
-      tags: ['angular', 'frontend'],
-      isPublished: true
+      name: name,
+      category: category,
+      author: author,
+      tags: tags,
+      isPublished: isPublished,
+      price: price
    });
 
-   const result = await course.save();
-   console.log(result);
+   try{
+      result = await course.save();
+   }catch(ex){
+      for(field in ex.errors){
+         console.error(ex.errors[field].message);
+      }
+   }
+   return result;
 }
 
+// READ
 async function getCourses(){
    // 比较符：
    // eq (equal to)                       ->等于
@@ -80,6 +133,7 @@ async function getCourses(){
    return courses;
 }
 
+// UPDATE
 async function updateCourse(id){
    const course = await Course.findById(id);
    if(!course){
@@ -97,6 +151,7 @@ async function updateCourse(id){
    return result;
 };
 
+// UPDATE
 async function updateCourseDirectly(id){
    const result = await Course.update({_id: id}, {
       $set: {
@@ -113,6 +168,7 @@ async function updateCourseDirectly(id){
    return result;
 };
 
+// DELETE
 async function removeCourse(id){
    const result = await Course.deleteOne({_id: id});
    return result;
@@ -121,10 +177,11 @@ async function removeCourse(id){
 async function run(){
    //const courses = await getCourses();
    // const result = await updateCourseDirectly('5b39bffa233171384c519da9');
-   const result = await removeCourse('5b39bffa233171384c519da9');
+   // const result = await removeCourse('5b39bffa233171384c519da9');
+   const result = await createCourse('How to Basic', 'Hao Wu', '?', null, true, 0)
    console.log(result);
+
+
 }
 
 run();
-
-/* jshint ignore:end */
